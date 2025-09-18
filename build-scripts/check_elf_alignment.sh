@@ -126,30 +126,24 @@ for match in $matches; do
   fi
 done
 
-# Exit with appropriate code: 1 if no 64-bit libs were found
-if [[ ${#aligned_64_bit_libs[@]} -eq 0 ]] && [[ ${#unaligned_64_bit_libs[@]} -eq 0 ]]; then
-  echo -e "${RED}Found no 64-bit (${ARCHITECTURE_64[@]}) libs.${ENDCOLOR}"
-  echo -e "${RED}ELF Verification Failed${ENDCOLOR}"
-  echo "====================="
-  exit 1
+if [ ${#aligned_64_bit_libs[@]} -gt 0 ]; then
+  echo -e "${GREEN}Found ${#aligned_64_bit_libs[@]} aligned 64-bit (${ARCHITECTURE_64[@]}) lib(s).${ENDCOLOR}"
 fi
-
-echo -e "${GREEN}Found ${#aligned_64_bit_libs[@]} aligned 64-bit (${ARCHITECTURE_64[@]}) libs.${ENDCOLOR}"
 
 # Exit with appropriate code: 1 if any unaligned 64-bit libs were found
 if [ ${#unaligned_64_bit_libs[@]} -gt 0 ]; then
-  echo -e "${RED}Found ${#unaligned_64_bit_libs[@]} unaligned 64-bit (${ARCHITECTURE_64[@]}) libs.${ENDCOLOR}"
+  echo -e "${RED}Found ${#unaligned_64_bit_libs[@]} unaligned 64-bit (${ARCHITECTURE_64[@]}) lib(s).${ENDCOLOR}"
   echo -e "${RED}ELF Verification Failed${ENDCOLOR}"
   echo "====================="
   exit 1
 fi
 
 if [ ${#unaligned_32_bit_libs[@]} -gt 0 ]; then
-  echo -e "Found ${#unaligned_32_bit_libs[@]} unaligned 32-bit libs (which do not need to be aligned)."
+  echo -e "Found ${#unaligned_32_bit_libs[@]} unaligned 32-bit lib(s) (which do not need to be aligned)."
 fi
 
 echo -e "${GREEN}ELF Verification Successful${ENDCOLOR}"
 echo "====================="
 
-# Exit with appropriate code: 0 if 64-bit libs were present and were aligned
+# Exit with appropriate code: 0 if no 64-bit libs were present, or if any/all 64-bit lib(s) which were present were properly aligned
 exit 0

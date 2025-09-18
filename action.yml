@@ -27,42 +27,9 @@ runs:
     - name: Check .apk files
       shell: bash
       run: |
-        echo "::group::Checking .apk files"
-        APK_RESULTS=""
-        if find "${{ inputs.path }}" -iname '*.apk' -type f | head -1 | grep -q .; then
-          APK_RESULTS=$(find "${{ inputs.path }}" -iname '*.apk' -type f | xargs -I {} bash -c 'echo "Checking: {}" && ${{ github.action_path }}/build-scripts/check_elf_alignment.sh "{}"' 2>&1 || echo "APK_CHECK_FAILED")
-        else
-          APK_RESULTS="No .apk files found"
-          echo "No .apk files found in ${{ inputs.path }}"
-        fi
-        echo "apk-results<<EOF" >> $GITHUB_OUTPUT
-        echo "$APK_RESULTS" >> $GITHUB_OUTPUT
-        echo "EOF" >> $GITHUB_OUTPUT
-        echo "::endgroup::"
-
+        find "${{ inputs.path }}" -iname '*.apk' -type f | xargs -L1 ${{ github.action_path }}/build-scripts/check_elf_alignment.sh
     - name: Check .so files
       shell: bash
       run: |
-        echo "::group::Checking .so files"
-        SO_RESULTS=""
-        if find "${{ inputs.path }}" -iname '*.so' -type f | head -1 | grep -q .; then
-          SO_RESULTS=$(find "${{ inputs.path }}" -iname '*.so' -type f | xargs -I {} bash -c 'echo "Checking: {}" && ${{ github.action_path }}/build-scripts/check_elf_alignment.sh "{}"' 2>&1 || echo "SO_CHECK_FAILED")
-        else
-          SO_RESULTS="No .so files found"
-          echo "No .so files found in ${{ inputs.path }}"
-        fi
-        echo "so-results<<EOF" >> $GITHUB_OUTPUT
-        echo "$SO_RESULTS" >> $GITHUB_OUTPUT
-        echo "EOF" >> $GITHUB_OUTPUT
-        echo "::endgroup::"
+        find "${{ inputs.path }}" -iname '*.so' -type f | xargs -L1 ${{ github.action_path }}/build-scripts/check_elf_alignment.sh
 
-    - name: Evaluate results
-      shell: bash
-      run: |
-        if [[ "${{ inputs.fail-on-unaligned }}" == "true" ]]; then
-          if echo "${{ steps.check-apk.outputs.apk-results }}" | grep -q "APK_CHECK_FAILED" || echo "${{ steps.check-so.outputs.so-results }}" | grep -q "SO_CHECK_FAILED"; then
-            echo "::error::ELF alignment check failed."
-            exit 1
-          fi
-        fi
-        echo "ELF alignment check completed successfully"
