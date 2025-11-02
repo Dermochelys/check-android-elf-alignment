@@ -1,6 +1,6 @@
 # Check Android ELF Alignment Action
 
-A GitHub Action that checks ELF alignment of shared libraries in Android .apk files and .so files. This action helps ensure that your Android applications have properly aligned native libraries that comply with the [Google Play Store requirements](https://developer.android.com/guide/practices/page-sizes).
+A GitHub Action that checks ELF alignment of shared libraries in Android .apk files, .aar files, and .so files. This action helps ensure that your Android applications have properly aligned native libraries that comply with the [Google Play Store requirements](https://developer.android.com/guide/practices/page-sizes).
 
 ```
 Starting November 1st, 2025, all new apps and updates to existing apps submitted 
@@ -12,7 +12,7 @@ to Google Play and targeting Android 15+ devices must support 16 KB page sizes o
 
 This action:
 - Focuses on 64-bit architectures (`arm64-v8a` and `x86_64`) as 32-bit `.so` files do not need to be aligned.
-- Scans for any/all `.apk` and `.so` files present, checks the ELF alignment, and reports on the results.
+- Scans for any/all `.apk`, `.aar`, and `.so` files present, checks the ELF alignment, and reports on the results.
 
 ## Usage
 
@@ -20,14 +20,14 @@ This action:
 
 ```yaml
       - name: Check Android ELF Alignment
-        uses: Dermochelys/check-android-elf-alignment@v2
+        uses: Dermochelys/check-android-elf-alignment@v3
 ```
 
 ### Advanced Usage
 
 ```yaml
       - name: Check Android ELF Alignment
-        uses: Dermochelys/check-android-elf-alignment@v2
+        uses: Dermochelys/check-android-elf-alignment@v3
         with:
           path: './build/outputs'
 ```
@@ -36,7 +36,7 @@ This action:
 
 | Input | Description | Required | Default |
 |-------|-------------|----------|---------|
-| `path` | Path to search for .apk and .so files | No | `./` |
+| `path` | Path to search for .apk, .aar, .so files | No | `./` |
 
 ## Understanding the output
 

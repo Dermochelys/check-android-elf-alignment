@@ -1,5 +1,5 @@
 name: 'Check Android ELF Alignment'
-description: 'Check ELF alignment of native libraries in .apk and .so files for Android apps'
+description: 'Check ELF alignment of native libraries in .apk, .aar, and .so files for Android apps'
 author: 'dermochelys'
 branding:
   icon: 'check-circle'
@@ -7,7 +7,7 @@ branding:
 
 inputs:
   path:
-    description: 'Path to search for .apk and .so files (default: current directory)'
+    description: 'Path to search for .apk, .aar, .so files (default: current directory)'
     required: false
     default: './'
   fail-on-unaligned:
@@ -18,6 +18,8 @@ inputs:
 outputs:
   apk-results:
     description: 'Results of .apk file alignment checks'
+  aar-results:
+    description: 'Results of .aar file alignment checks'
   so-results:
     description: 'Results of .so file alignment checks'
 
@@ -28,6 +30,10 @@ runs:
       shell: bash
       run: |
         find "${{ inputs.path }}" -iname '*.apk' -type f | xargs -L1 ${{ github.action_path }}/build-scripts/check_elf_alignment.sh
+    - name: Check .aar files
+      shell: bash
+      run: |
+        find "${{ inputs.path }}" -iname '*.aar' -type f | xargs -L1 ${{ github.action_path }}/build-scripts/check_elf_alignment.sh
     - name: Check .so files
       shell: bash
       run: |

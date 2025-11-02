@@ -2,7 +2,7 @@
 progname="${0##*/}"
 progname="${progname%.sh}"
 
-# usage: check_elf_alignment.sh [path to *.so files|path to *.apk]
+# usage: check_elf_alignment.sh [path to *.so files|path to *.aar|path to *.apk]
 
 cleanup_trap() {
   if [ -n "${tmp}" -a -d "${tmp}" ]; then
@@ -16,7 +16,7 @@ usage() {
   echo "Shared libraries are reported ALIGNED when their ELF regions are"
   echo "16 KB or 64 KB aligned. Otherwise they are reported as UNALIGNED."
   echo
-  echo "Usage: ${progname} [input-path|input-APK|input-APEX]"
+  echo "Usage: ${progname} [input-path|input-APK|input-AAR|input-APEX]"
 }
 
 if [ ${#} -ne 1 ]; then
@@ -65,6 +65,21 @@ if [[ "${dir}" == *.apk ]]; then
   dir="${tmp}"
 fi
 
+if [[ "${dir}" == *.aar ]]; then
+  trap 'cleanup_trap' EXIT
+
+  echo
+  echo "Recursively analyzing $dir"
+  echo
+
+  dir_filename=$(basename "${dir}")
+  tmp=$(mktemp -d -t "${dir_filename%.aar}_out_XXXXX")
+  # Extract both lib/* (traditional) and prefab/* (newer format) directories
+  unzip "${dir}" 'lib/*' -d "${tmp}" >/dev/null 2>&1
+  unzip "${dir}" 'prefab/*' -d "${tmp}" >/dev/null 2>&1
+  dir="${tmp}"
+fi
+
 if [[ "${dir}" == *.apex ]]; then
   trap 'cleanup_trap' EXIT
 
@@ -95,6 +110,7 @@ IFS=$'\n'
 for match in $matches; do
   # We could recursively call this script or rewrite it to though.
   [[ "${match}" == *".apk" ]] && echo "WARNING: doesn't recursively inspect .apk file: ${match}"
+  [[ "${match}" == *".aar" ]] && echo "WARNING: doesn't recursively inspect .aar file: ${match}"
   [[ "${match}" == *".apex" ]] && echo "WARNING: doesn't recursively inspect .apex file: ${match}"
 
   [[ $(file "${match}") == *"ELF"* ]] || continue
